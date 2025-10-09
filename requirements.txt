@@ -1,8 +1,24 @@
-streamlit==1.26.0
-pandas==2.1.0
-pillow==10.0.0
-qrcode[pil]==7.4.3
-pyzbar==0.27.0
-numpy==1.26.0
-pytz==2025.7
-opencv-python==4.8.1.78
+# --- Core Framework ---
+streamlit==1.33.0
+
+# --- Data Handling ---
+pandas==2.2.3
+numpy==1.26.4
+pyarrow==17.0.0
+protobuf==4.25.3
+
+# --- Image & QR Code Generation ---
+pillow==10.3.0
+qrcode==7.4.2
+opencv-python-headless==4.10.0.84
+pyzbar==0.1.9
+
+# --- Timezone & Utilities ---
+pytz==2024.1
+
+# --- Barcode / QR / ID Card Styling ---
+python-barcode==0.15.1
+reportlab==4.2.2
+
+# --- Security / Hashing ---
+bcrypt==4.1.3
