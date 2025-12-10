@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="mb-3">Owner Dashboard</h2>
+
+<!-- Date filter + export -->
+<form method="get" class="row g-2 mb-3">
+  <div class="col-md-3">
+    <label class="form-label">From date</label>
+    <input type="date" name="from_date" class="form-control"
+           value="{{ from_date }}">
+  </div>
+  <div class="col-md-3">
+    <label class="form-label">To date</label>
+    <input type="date" name="to_date" class="form-control"
+           value="{{ to_date }}">
+  </div>
+  <div class="col-md-3 d-flex align-items-end">
+    <button class="btn btn-primary me-2">Filter</button>
+    <a href="{{ url_for('owner_dashboard') }}" class="btn btn-outline-secondary">Clear</a>
+  </div>
+  <div class="col-md-3 d-flex align-items-end justify-content-end">
+    <a href="{{ url_for('export_attendance', from_date=from_date, to_date=to_date) }}"
+       class="btn btn-outline-success">
+      Export CSV
+    </a>
+  </div>
+</form>
+
+<div class="row mb-3">
+  <div class="col-auto">
+    <a href="{{ url_for('manage_staff') }}" class="btn btn-success btn-sm">Manage Staff</a>
+  </div>
+  <div class="col-auto">
+    <a href="{{ url_for('scan_qr') }}" class="btn btn-outline-primary btn-sm">Scan QR for Attendance</a>
+  </div>
+</div>
+
+<div class="row">
+  <!-- Users + today's status -->
+  <div class="col-lg-5 mb-4">
+    <div class="card h-100">
+      <div class="card-header">All Users &amp; Today Status</div>
+      <div class="card-body">
+        <table class="table table-sm align-middle">
+          <thead>
+          <tr>
+            <th>Username</th>
+            <th>Role</th>
+            <th>Today</th>
+            <th>QR</th>
+          </tr>
+          </thead>
+          <tbody>
+          {% for u in users %}
+            <tr>
+              <td>{{ u.username }}</td>
+              <td>{{ u.role }}</td>
+              <td>
+                <span class="badge {{ 'bg-success' if u.today_status == 'Present' else 'bg-secondary' }}">
+                  {{ u.today_status }}
+                </span>
+              </td>
+              <td>
+                {% if u.qr_filename %}
+                  <img src="{{ url_for('static', filename='qr_codes/' ~ u.qr_filename) }}" width="50">
+                {% else %}-{% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Attendance + manual mark + send message -->
+  <div class="col-lg-7 mb-4">
+    <!-- Attendance (filtered) -->
+    <div class="card h-100 mb-3">
+      <div class="card-header">Attendance (filtered)</div>
+      <div class="card-body">
+        <table class="table table-sm">
+          <thead>
+          <tr>
+            <th>User</th>
+            <th>Check-in</th>
+            <th>Check-out</th>
+          </tr>
+          </thead>
+          <tbody>
+          {% for a in attendance %}
+            <tr>
+              <td>{{ a.username }}</td>
+              <td>{{ a.check_in }}</td>
+              <td>{{ a.check_out or '-' }}</td>
+            </tr>
+          {% endfor %}
+          {% if not attendance %}
+            <tr><td colspan="3" class="text-muted">No records for selected dates.</td></tr>
+          {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- NEW: Mark attendance without QR -->
+    <div class="card mb-3">
+      <div class="card-header">Mark Attendance Without QR</div>
+      <div class="card-body">
+        <form method="post" action="{{ url_for('owner_mark_attendance') }}" class="row g-2">
+          <div class="col-md-7">
+            <label class="form-label">Select staff</label>
+            <select class="form-select" name="staff_id" required>
+              {% for u in users if u.role == 'staff' %}
+                <option value="{{ u.id }}">{{ u.username }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-5 d-flex align-items-end">
+            <button class="btn btn-warning w-100">
+              Toggle Check-in / Check-out
+            </button>
+          </div>
+        </form>
+        <p class="small text-muted mt-2 mb-0">
+          Same logic as QR scan, but manual — useful if camera/QR is not working.
+        </p>
+      </div>
+    </div>
+
+    <!-- Send info to staff -->
+    <div class="card h-100">
+      <div class="card-header">Send Information to Staff</div>
+      <div class="card-body">
+        <form method="post" action="{{ url_for('send_message') }}">
+          <div class="mb-2">
+            <label class="form-label">Staff Member</label>
+            <select class="form-select" name="to_user_id" required>
+              {% for u in users if u.role == 'staff' %}
+                <option value="{{ u.id }}">{{ u.username }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Title (optional)</label>
+            <input class="form-control" name="title" placeholder="e.g., Shift update">
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Message</label>
+            <textarea class="form-control" name="body" rows="3" required></textarea>
+          </div>
+          <button class="btn btn-primary">Send Info</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

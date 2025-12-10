@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="mb-3">QR Attendance Scan (Owner Only)</h2>
+
+<p class="text-muted">
+  You can either scan using your camera or paste the QR text manually.
+  QR content looks like <code>ATTEND:3</code>.
+</p>
+
+<div class="row">
+  <!-- CAMERA SCAN -->
+  <div class="col-md-6 mb-4">
+    <div class="card">
+      <div class="card-header">Scan with Camera</div>
+      <div class="card-body">
+        <div id="qr-reader" style="width:100%;"></div>
+        <p class="small text-muted mt-2 mb-0">
+          Allow camera access when browser asks. Once a QR is detected,
+          it will auto-submit.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MANUAL INPUT -->
+  <div class="col-md-6 mb-4">
+    <div class="card">
+      <div class="card-header">Manual Input</div>
+      <div class="card-body">
+        <form method="post" id="qr-form" class="row g-2">
+          <div class="col-12">
+            <label class="form-label">QR Text</label>
+            <input class="form-control" name="qr_value" id="qr_value"
+                   placeholder="ATTEND:3" required>
+          </div>
+          <div class="col-12">
+            <button class="btn btn-primary w-100">Submit</button>
+          </div>
+        </form>
+        <p class="small text-muted mt-2 mb-0">
+          If camera doesn’t work, you can still paste the scanned text here.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<a href="{{ url_for('owner_dashboard') }}" class="btn btn-link mt-2">Back to Dashboard</a>
+
+<!-- QR scanner script -->
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+<script>
+  const qrInput = document.getElementById("qr_value");
+  const qrForm = document.getElementById("qr-form");
+
+  function onScanSuccess(decodedText, decodedResult) {
+      console.log("QR decoded:", decodedText);
+      // fill field
+      qrInput.value = decodedText;
+      // stop scanning after first success
+      html5QrcodeScanner.clear().then(_ => {
+          // auto-submit form
+          qrForm.submit();
+      }).catch(error => {
+          console.error("Failed to stop scanner:", error);
+      });
+  }
+
+  function onScanError(errorMessage) {
+      // ignore scan errors for smoother experience
+  }
+
+  let html5QrcodeScanner = new Html5QrcodeScanner(
+      "qr-reader",
+      { fps: 10, qrbox: 250 },
+      false
+  );
+  html5QrcodeScanner.render(onScanSuccess, onScanError);
+</script>
+{% endblock %}

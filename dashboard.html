@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+</head>
+<body>
+    <h2>User Dashboard</h2>
+
+    <a href="/add_staff">Add Staff</a>
+    <br><br>
+
+    <table border="1" cellpadding="10">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Role</th>
+            <th>QR Code</th>
+        </tr>
+
+        {% for u in users %}
+        <tr>
+            <td>{{ u[0] }}</td>
+            <td>{{ u[1] }}</td>
+            <td>{{ u[2] }}</td>
+            <td><img src="{{ url_for('static', filename='qr_codes/' + u[3].split('/')[-1]) }}" width="100"></td>
+        </tr>
+        {% endfor %}
+    </table>
+
+</body>
+</html>

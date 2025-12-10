@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="mb-1">Staff Dashboard</h2>
+<p>Today status:
+  <span class="badge {{ 'bg-success' if today_status == 'Present' else 'bg-secondary' }}">
+    {{ today_status }}
+  </span>
+</p>
+
+<div class="row">
+  <!-- LEFT: info + QR -->
+  <div class="col-md-5 mb-4">
+    <div class="card h-100">
+      <div class="card-header">Your Info</div>
+      <div class="card-body text-center">
+        <h5 class="mb-3">{{ username }}</h5>
+        <p class="text-muted">Your QR Code</p>
+        {% if qr_filename %}
+          <img src="{{ url_for('static', filename='qr_codes/' ~ qr_filename) }}"
+               class="img-fluid mb-2" style="max-width:220px;">
+          <p class="text-muted small mb-0">
+            Show this QR to the owner when they mark attendance.
+          </p>
+        {% else %}
+          <p>No QR found.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: attendance + messages -->
+  <div class="col-md-7 mb-4">
+    <!-- Attendance (view only) -->
+    <div class="card mb-3">
+      <div class="card-header">Your Attendance (view only)</div>
+      <div class="card-body">
+        <table class="table table-sm">
+          <thead>
+          <tr>
+            <th>Check-in</th>
+            <th>Check-out</th>
+          </tr>
+          </thead>
+          <tbody>
+          {% for row in logs %}
+            <tr>
+              <td>{{ row.check_in }}</td>
+              <td>{{ row.check_out or '-' }}</td>
+            </tr>
+          {% endfor %}
+          {% if not logs %}
+            <tr><td colspan="2" class="text-muted">No attendance yet.</td></tr>
+          {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Messages with date next to title -->
+    <div class="card">
+      <div class="card-header">Information from Owner</div>
+      <div class="card-body">
+        {% if messages %}
+          <ul class="list-group list-group-flush">
+            {% for m in messages %}
+              <li class="list-group-item">
+                <div class="d-flex justify-content-between">
+                  <div>
+                    <!-- Date badge + title -->
+                    <span class="badge bg-secondary me-2">
+                      {{ m.created_at[:10] }}
+                    </span>
+                    <strong>{{ m.title or "Message" }}</strong>
+                  </div>
+                </div>
+                <div class="mt-1">
+                  {{ m.body }}
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-muted mb-0">No messages yet.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

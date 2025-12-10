@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="mb-3">Manage Staff</h2>
+
+<div class="row">
+  <div class="col-md-6 mb-4">
+    <div class="card">
+      <div class="card-header">Add Staff</div>
+      <div class="card-body">
+        <form method="post">
+          <input type="hidden" name="action" value="add">
+          <div class="mb-3">
+            <label class="form-label">Username</label>
+            <input class="form-control" name="username" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-control" name="password" required>
+          </div>
+          <button class="btn btn-success">Add Staff</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6 mb-4">
+    <div class="card">
+      <div class="card-header">Delete Staff</div>
+      <div class="card-body">
+        <form method="post">
+          <input type="hidden" name="action" value="delete">
+          <div class="mb-3">
+            <label class="form-label">Select staff</label>
+            <select class="form-select" name="user_id" required>
+              {% for s in staff %}
+                <option value="{{ s.id }}">{{ s.username }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <button class="btn btn-danger">Delete Staff</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<a href="{{ url_for('owner_dashboard') }}" class="btn btn-outline-secondary btn-sm">Back to Dashboard</a>
+{% endblock %}
